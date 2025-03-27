@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 contract HederaDAO {
+    Proposal[] public proposals;
     struct Member {
         bool isMember;
         uint256 reputation;
@@ -56,6 +57,11 @@ contract HederaDAO {
         emit ProposalCreated(proposals.length - 1, _description, msg.sender, block.timestamp + _votingDuration);
     }
 
+    function getProposalsCount() public view returns (uint256) {
+    return proposals.length;
+}
+
+
     function vote(uint256 _proposalId, bool _support) external onlyMember {
         require(_proposalId < proposals.length, "Invalid proposal ID");
         Proposal storage proposal = proposals[_proposalId];
@@ -86,4 +92,7 @@ contract HederaDAO {
         proposal.executed = true;
         emit ProposalExecuted(_proposalId);
     }
+
+
+
 }
