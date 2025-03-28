@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 contract HederaDAO {
-    Proposal[] public proposals;
+
     struct Member {
         bool isMember;
         uint256 reputation;
@@ -10,6 +10,7 @@ contract HederaDAO {
     }
 
     struct Proposal {
+        string title;
         string description;
         uint256 votesFor;
         uint256 votesAgainst;
@@ -42,10 +43,11 @@ contract HederaDAO {
         emit MemberJoined(msg.sender, _reputation, _stakedTokens);
     }
 
-    function createProposal(string memory _description, uint256 _votingDuration) external onlyMember {
+    function createProposal(string memory _title, string memory _description, uint256 _votingDuration) external onlyMember {
         require(_votingDuration > 0, "Invalid voting duration");
 
         proposals.push(Proposal({
+            title: _title,
             description: _description,
             votesFor: 0,
             votesAgainst: 0,

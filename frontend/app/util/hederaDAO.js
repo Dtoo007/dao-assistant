@@ -3,7 +3,7 @@
 import { ethers } from "ethers";
 
 // Replace with your actual deployed contract address
-const CONTRACT_ADDRESS = "0x93cab3f62a42d741a800b50e6edf4d85ffffaff6";
+const CONTRACT_ADDRESS = "0x059386b201775baa6845b1f8688acbaa97806528";
 
 // Replace with your actual ABI from Remix or Hardhat
 
@@ -118,6 +118,11 @@ const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "string",
+        name: "_title",
+        type: "string",
+      },
+      {
+        internalType: "string",
         name: "_description",
         type: "string",
       },
@@ -143,6 +148,58 @@ const CONTRACT_ABI = [
     name: "executeProposal",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_index",
+        type: "uint256",
+      },
+    ],
+    name: "getProposal",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getProposalsCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -217,6 +274,11 @@ const CONTRACT_ABI = [
     outputs: [
       {
         internalType: "string",
+        name: "title",
+        type: "string",
+      },
+      {
+        internalType: "string",
         name: "description",
         type: "string",
       },
@@ -232,7 +294,12 @@ const CONTRACT_ABI = [
       },
       {
         internalType: "uint256",
-        name: "deadline",
+        name: "votes",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "votingDeadline",
         type: "uint256",
       },
       {
@@ -263,6 +330,19 @@ const CONTRACT_ABI = [
       },
     ],
     name: "vote",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_proposalIndex",
+        type: "uint256",
+      },
+    ],
+    name: "voteOnProposal",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
