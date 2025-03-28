@@ -3,7 +3,7 @@
 import { ethers } from "ethers";
 
 // Replace with your actual deployed contract address
-const CONTRACT_ADDRESS = "0x059386b201775baa6845b1f8688acbaa97806528";
+const CONTRACT_ADDRESS = "0xbfd46a5dc4c1c6d1b14e2825dfbaa9c8e242dee0";
 
 // Replace with your actual ABI from Remix or Hardhat
 
