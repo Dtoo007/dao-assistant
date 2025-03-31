@@ -15,23 +15,25 @@ export default function CreateProposal() {
 
   // Join DAO Function
   const joinDAO = async () => {
+    if (typeof window.ethereum === "undefined") {
+      setMessage("❌ MetaMask not detected. Please install MetaMask.");
+      return;
+    }
+  
     try {
-      // Request wallet connection if not already connected
-      const accounts = await window.ethereum.request({
-        method: "eth_requestAccounts",
-      });
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
   
       if (!accounts || accounts.length === 0) {
         setMessage("❌ No wallet address found. Please connect your wallet.");
         return;
       }
   
-      const userAccount = accounts[0]; // Get the first connected account
+      const userAccount = accounts[0]; 
       setAccount(userAccount);
   
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = await getContract(signer);
+      const contract = await getContract(signer); // ✅ Ensure signer is passed
   
       if (!contract) {
         setMessage("❌ Failed to join DAO. No contract instance found.");
@@ -57,34 +59,145 @@ export default function CreateProposal() {
       setMessage(`❌ Failed to join DAO. Error: ${error.reason || error.message}`);
     }
   };
+
+  
+  // const joinDAO = async () => {
+  //   if (typeof window.ethereum === "undefined") {
+  //     setMessage("❌ MetaMask not detected. Please install MetaMask.");
+  //     return;
+  //   }
+  //   try {
+  //     // Request wallet connection if not already connected
+  //     const accounts = await window.ethereum.request({
+  //       method: "eth_requestAccounts",
+  //     });
+  
+  //     if (!accounts || accounts.length === 0) {
+  //       setMessage("❌ No wallet address found. Please connect your wallet.");
+  //       return;
+  //     }
+  
+  //     const userAccount = accounts[0]; // Get the first connected account
+  //     setAccount(userAccount);
+  
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const contract = await getContract(signer);
+  
+  //     if (!contract) {
+  //       setMessage("❌ Failed to join DAO. No contract instance found.");
+  //       return;
+  //     }
+  
+  //     const alreadyMember = await contract.isMember(userAccount);
+  //     if (alreadyMember) {
+  //       setIsMember(true);
+  //       setMessage("✅ You are already a member! You can create proposals.");
+  //       return;
+  //     }
+  
+  //     const reputation = 10;
+  //     const stakedTokens = ethers.parseUnits("1", 18);
+  //     const tx = await contract.joinDAO(reputation, stakedTokens);
+  //     await tx.wait();
+  
+  //     setIsMember(true);
+  //     setMessage("✅ Successfully joined the DAO! You can now create proposals.");
+  //   } catch (error) {
+  //     console.error("Error joining DAO:", error);
+  //     setMessage(`❌ Failed to join DAO. Error: ${error.reason || error.message}`);
+  //   }
+  // };
   
 
   // Submit Proposal Function
-  const submitProposal = async () => {
-    if (!title || !description || !duration) {
+  // const submitProposal = async () => {
+  //   if (!title || !description || !duration) {
+  //     alert("Please fill all fields.");
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   setMessage("");
+
+  //   try {
+  //     const contract = await getContract();
+  //     const tx = await contract.createProposal(title, description, parseInt(duration));
+  //     await tx.wait();
+
+  //     setMessage("✅ Proposal created successfully!");
+  //     setTitle("");
+  //     setDescription("");
+  //     setDuration("");
+  //   } catch (error) {
+  //     console.error("Error creating proposal:", error);
+  //     setMessage("❌ Failed to create proposal.");
+  //   }
+
+  //   setLoading(false);
+  // };
+
+
+  const generateSummary = async (title, description) => {
+  try {
+    const response = await fetch("/api/generate-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, description }),
+    });
+
+    const data = await response.json();
+    return data.summary || "No summary available.";
+  } catch (error) {
+    console.error("Error generating summary:", error);
+    return "Failed to generate summary.";
+  }
+};
+
+const submitProposal = async () => {
+  if (!title || !description || !duration) {
       alert("Please fill all fields.");
       return;
-    }
+  }
 
-    setLoading(true);
-    setMessage("");
+  setLoading(true);
+  setMessage("");
 
-    try {
-      const contract = await getContract();
-      const tx = await contract.createProposal(title, description, parseInt(duration));
+  try {
+      if (typeof window.ethereum === "undefined") {
+          setMessage("❌ MetaMask not detected. Please install MetaMask.");
+          setLoading(false);
+          return;
+      }
+
+      // Connect wallet
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = await getContract(signer); // ✅ Pass signer to getContract()
+
+      if (!contract) {
+          setMessage("❌ Contract instance not found.");
+          setLoading(false);
+          return;
+      }
+
+      const tx = await contract.createProposal(title, description, parseInt(duration, 10));
+      console.log("Submitting Proposal:", title, description, duration);
+
       await tx.wait();
 
       setMessage("✅ Proposal created successfully!");
       setTitle("");
       setDescription("");
       setDuration("");
-    } catch (error) {
+  } catch (error) {
       console.error("Error creating proposal:", error);
-      setMessage("❌ Failed to create proposal.");
-    }
+      setMessage(`❌ Failed to create proposal. ${error.reason || error.message}`);
+  }
 
-    setLoading(false);
-  };
+  setLoading(false);
+};
+
 
   return (
     <div className="p-4 border border-gray-500 rounded my-4">

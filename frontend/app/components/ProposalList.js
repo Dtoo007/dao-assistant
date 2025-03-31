@@ -76,7 +76,7 @@ export default function ProposalsList() {
       fetchProposals(); // Refresh proposals after voting
     } catch (error) {
       console.error("Error submitting vote:", error);
-      setMessage("❌ Failed to vote. Check console for details.");
+      setMessage("❌ Failed to vote. You already voted.");
     }
   };
   
@@ -84,6 +84,7 @@ export default function ProposalsList() {
   return (
     <div>
       <h2 className="text-xl font-bold mt-4">DAO Proposals</h2>
+      {message && <p className="text-red-500 font-bold">{message}</p>} {/* Display error messages */}
       {loading ? (
         <p>Loading proposals...</p>
       ) : proposals.length === 0 ? (
