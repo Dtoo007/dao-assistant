@@ -2,7 +2,7 @@ import WalletConnect from "@/app/components/WalletConnect";
 import GetProposals from "@/app/components/GetProposals";
 import ProposalList from "./components/ProposalList";
 import CreateProposal from "./components/CreateProposal";
-import JoinDAOButton from "./components/JoinDAOButton";
+// import JoinDAOButton from "./components/JoinDAOButton";
 import Banner from "./components/Banner";
 
 export default function Home() {
@@ -11,7 +11,7 @@ export default function Home() {
       <h1 className="text-2xl font-bold">Hedera DAO</h1>
       <Banner />
       <WalletConnect />
-      <JoinDAOButton />
+      {/* <JoinDAOButton /> */}
       <CreateProposal />
       <GetProposals />
       <ProposalList />

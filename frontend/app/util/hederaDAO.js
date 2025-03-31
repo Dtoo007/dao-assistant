@@ -3,7 +3,7 @@
 import { ethers } from "ethers";
 
 // Replace with your actual deployed contract address
-const CONTRACT_ADDRESS = "0xbfd46a5dc4c1c6d1b14e2825dfbaa9c8e242dee0";
+const CONTRACT_ADDRESS = "0x5a1f3f87a8d2317077196a1e30886530375cb48c";
 
 // Replace with your actual ABI from Remix or Hardhat
 
@@ -37,6 +37,19 @@ const CONTRACT_ABI = [
       },
     ],
     name: "MemberJoined",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "member",
+        type: "address",
+      },
+    ],
+    name: "MemberLeft",
     type: "event",
   },
   {
@@ -81,6 +94,68 @@ const CONTRACT_ABI = [
       },
     ],
     name: "ProposalExecuted",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "proposalId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "voter",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "support",
+        type: "bool",
+      },
+    ],
+    name: "VoteCast",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "proposalId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "voter",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "support",
+        type: "bool",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "votesFor",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "votesAgainst",
+        type: "uint256",
+      },
+    ],
+    name: "VoteCast",
     type: "event",
   },
   {
@@ -151,6 +226,56 @@ const CONTRACT_ABI = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "getAllProposals",
+    outputs: [
+      {
+        components: [
+          {
+            internalType: "string",
+            name: "title",
+            type: "string",
+          },
+          {
+            internalType: "string",
+            name: "description",
+            type: "string",
+          },
+          {
+            internalType: "uint256",
+            name: "votesFor",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "votesAgainst",
+            type: "uint256",
+          },
+          {
+            internalType: "uint256",
+            name: "votingDeadline",
+            type: "uint256",
+          },
+          {
+            internalType: "bool",
+            name: "executed",
+            type: "bool",
+          },
+          {
+            internalType: "address",
+            name: "proposer",
+            type: "address",
+          },
+        ],
+        internalType: "struct HederaDAO.Proposal[]",
+        name: "",
+        type: "tuple[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -169,6 +294,11 @@ const CONTRACT_ABI = [
         internalType: "string",
         name: "",
         type: "string",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
       },
       {
         internalType: "uint256",
@@ -206,6 +336,49 @@ const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "hasVoted",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "user",
+        type: "address",
+      },
+    ],
+    name: "isMember",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
         name: "_reputation",
         type: "uint256",
       },
@@ -216,6 +389,13 @@ const CONTRACT_ABI = [
       },
     ],
     name: "joinDAO",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "leaveDAO",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -294,11 +474,6 @@ const CONTRACT_ABI = [
       },
       {
         internalType: "uint256",
-        name: "votes",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
         name: "votingDeadline",
         type: "uint256",
       },
@@ -320,29 +495,16 @@ const CONTRACT_ABI = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_proposalId",
+        name: "proposalId",
         type: "uint256",
       },
       {
         internalType: "bool",
-        name: "_support",
+        name: "support",
         type: "bool",
       },
     ],
     name: "vote",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_proposalIndex",
-        type: "uint256",
-      },
-    ],
-    name: "voteOnProposal",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -356,5 +518,6 @@ export const getContract = async () => {
     return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   } else {
     console.error("Ethereum provider not found! Install MetaMask.");
+    return null;
   }
 };

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -33,16 +34,4 @@ export function useWallet() {
   }, []);
 
   return { account, connectWallet };
-}
-
-export default function WalletConnect() {
-  const { account, connectWallet } = useWallet();
-
-  return (
-    <div>
-      <button onClick={connectWallet} className="px-4 py-2 bg-blue-500 text-white rounded">
-        {account ? `Connected: ${account.substring(0, 6)}...${account.slice(-4)}` : "Connect Wallet"}
-      </button>
-    </div>
-  );
 }

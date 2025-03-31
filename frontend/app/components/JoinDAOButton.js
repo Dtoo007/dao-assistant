@@ -1,57 +1,111 @@
 "use client";
-import { useState } from "react";
-import { ethers } from "ethers";
-import { getContract } from "@/app/util/hederaDAO";
 
-export default function JoinDAOButton() {
-  const [joining, setJoining] = useState(false);
+import { useState } from "react";
+import { getContract } from "@/app/util/hederaDAO";
+import { ethers } from "ethers";
+
+export default function CreateProposal() {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [duration, setDuration] = useState("");
+  const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [account, setAccount] = useState(null);
+  const [isMember, setIsMember] = useState(false);
 
   const joinDAO = async () => {
     try {
-      setJoining(true);
-      setMessage("");
-
-      // Ensure MetaMask is available
-      if (!window.ethereum) {
-        throw new Error("MetaMask is not installed.");
+      if (!account) {
+        const accounts = await window.ethereum.request({
+          method: "eth_requestAccounts",
+        });
+        setAccount(accounts[0]);
       }
 
-      // Connect wallet
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
+      const contract = await getContract(); // ✅ Now correctly awaited
 
-      // Get contract with signer
-      const contract = await getContract(signer);
+      if (!contract) {
+        setMessage("❌ Failed to join DAO. No contract instance found.");
+        return;
+      }
 
-      // Define reputation & tokens (replace with actual logic)
-    const reputation = 10; // Set based on user logic
-    const stakedTokens = ethers.parseUnits("1", 18); // Assuming token has 18 decimals
+      const alreadyMember = await contract.isMember(account);
+      if (alreadyMember) {
+        setIsMember(true);
+        setMessage("✅ You are already a member! You can create proposals.");
+        return;
+      }
 
-
-      // Call joinDAO function
+      const reputation = 10;
+      const stakedTokens = ethers.parseUnits("1", 18);
       const tx = await contract.joinDAO(reputation, stakedTokens);
-      await tx.wait(); // Wait for confirmation
+      await tx.wait();
 
-      setMessage("✅ Successfully joined the DAO! You can now create proposals.");
+      setIsMember(true);
+      setMessage(
+        "✅ Successfully joined the DAO! You can now create proposals."
+      );
     } catch (error) {
       console.error("Error joining DAO:", error);
-      setMessage(`❌ Failed to join DAO. Error: ${error.reason || error.message}`);
-    } finally {
-      setJoining(false);
+      setMessage(
+        `❌ Failed to join DAO. Error: ${error.reason || error.message}`
+      );
     }
   };
 
   return (
-    <div>
+    <div className="p-4 border border-gray-500 rounded my-4">
       <button
         onClick={joinDAO}
-        disabled={joining}
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        className={`px-4 py-2 rounded ${
+          isMember
+            ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+            : "bg-blue-500 text-white"
+        }`}
+        disabled={isMember}
       >
-        {joining ? "Joining..." : "Join DAO"}
+        {isMember ? "Joined DAO" : "Join DAO - Connect Wallet"}
       </button>
       {message && <p className="mt-2 text-white">{message}</p>}
+
+      <h2 className="text-lg font-bold mt-4">Create Proposal</h2>
+      <input
+        type="text"
+        placeholder="Title"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        className="w-full p-2 border rounded my-2"
+        disabled={!isMember}
+      />
+      <textarea
+        placeholder="Description"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        className="w-full p-2 border rounded my-2"
+        disabled={!isMember}
+      />
+      <input
+        type="number"
+        placeholder="Duration (in seconds)"
+        value={duration}
+        onChange={(e) => setDuration(e.target.value)}
+        className="w-full p-2 border rounded my-2"
+        disabled={!isMember}
+      />
+      {/* <button
+        onClick={submitProposal}
+        className={`px-4 py-2 rounded ${
+          isMember
+            ? "bg-green-500 text-white"
+            : "bg-gray-500 text-gray-300 cursor-not-allowed"
+        }`}
+        disabled={!isMember || loading}
+      >
+        {loading ? "Submitting..." : "Create Proposal"}
+      </button> */}
+      {!isMember && (
+        <p className="mt-2 text-red-500">Join the DAO to create proposals.</p>
+      )}
     </div>
   );
 }
