@@ -1,3 +1,5 @@
+//
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,36 +15,44 @@ export default function ProposalsList() {
     fetchProposals();
   }, []);
 
+  useEffect(() => {
+    console.log("Updated proposals:", proposals);
+  }, [proposals]);
+
   const fetchProposals = async () => {
     setLoading(true);
     try {
-      const contract = await getContract();
-      const count = await contract.getProposalsCount();
+      if (typeof window.ethereum === "undefined") {
+        alert(
+          "MetaMask is not installed. Please install MetaMask to continue."
+        );
+        return;
+      }
 
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const contract = await getContract(signer);
+
+      const count = await contract.getProposalsCount();
       console.log("Total Proposals from contract:", count.toString());
 
       let proposalsArray = [];
 
       for (let i = 0; i < count; i++) {
         console.log(`Fetching proposal at index ${i}`);
-
         try {
           const proposal = await contract.getProposal(i);
           console.log("Proposal Data:", proposal);
 
           proposalsArray.push({
             id: i,
-            title: proposal[0], // String
-            description: proposal[1], // String
-
-            votesFor: proposal[2].toString(), // Correct votes for
-            votesAgainst: proposal[3].toString(), // Correct votes against
-
-            deadline: Number(proposal[4].toString()), // Convert to a number
+            title: proposal[0],
+            description: proposal[1],
+            votesFor: proposal[2].toString(),
+            votesAgainst: proposal[3].toString(),
+            deadline: Number(proposal[4].toString()),
             proposer: proposal[5],
           });
-
-          // setProposals(proposalsList);
         } catch (error) {
           console.error(`Error fetching proposal ${i}:`, error);
         }
@@ -67,7 +77,7 @@ export default function ProposalsList() {
       const tx = await contract.vote(proposalId, support);
       await tx.wait();
       setMessage("✅ Vote submitted successfully!");
-      fetchProposals(); // Refresh proposals after voting
+      fetchProposals();
     } catch (error) {
       console.error("Error submitting vote:", error);
       setMessage("❌ Failed to vote. You already voted.");
@@ -75,22 +85,15 @@ export default function ProposalsList() {
   };
 
   return (
-<<<<<<< HEAD
     <div className="max-w-2xl mx-auto">
       <h2 className="text-xl font-bold mt-0">DAO Proposals</h2>
-      {message && <p className="text-red-500 font-bold">{message}</p>}{" "}
-      {/* Display error messages */}
-=======
-    <div>
-      <h2 className="text-xl font-bold mt-4">DAO Proposals</h2>
-      {message && <p className="text-red-500 font-bold">{message}</p>} {/* Display error messages */}
->>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
+      {message && <p className="text-red-500 font-bold">{message}</p>}
       {loading ? (
         <p>Loading proposals...</p>
       ) : proposals.length === 0 ? (
         <p>No proposals yet.</p>
       ) : (
-        <ul className="mt-2 ">
+        <ul className="mt-2">
           {proposals.map((proposal) => {
             const currentTime = Math.floor(Date.now() / 1000);
             const timeLeft = proposal.deadline - currentTime;
@@ -116,25 +119,35 @@ export default function ProposalsList() {
                   {proposal.description}
                 </p>
                 <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 mb-3">
-                  <div >
+                  <div>
                     Votes For:{" "}
-                    <span className="text-cyan-400"> {proposal.votesFor}</span>{" "}
-                    | Votes Against:{" "}
-                    <span className="text-red-400">
-                      
+                    <span className="text-cyan-400">{proposal.votesFor}</span> |
+                    Votes Against:{" "}
+                    <span className="text-red-500">
                       {proposal.votesAgainst}
                     </span>
                   </div>
                   <div>
-                    Status: <span className={`${isExpired ? "text-red-500" : "text-yellow-400"}`}>{status}</span>
+                    Status:{" "}
+                    <span
+                      className={`${
+                        isExpired ? "text-red-500" : "text-yellow-400"
+                      }`}
+                    >
+                      {status}
+                    </span>
                   </div>
                   <div>
                     Time Left:{" "}
-                    <span className={`${isExpired ? "text-red-500" : "text-yellow-400"}`}> {remainingTime}</span>
+                    <span
+                      className={`${
+                        isExpired ? "text-red-500" : "text-yellow-400"
+                      }`}
+                    >
+                      {remainingTime}
+                    </span>
                   </div>
                 </div>
-
-                {/* Voting Buttons */}
                 <div className="flex gap-2 mt-4">
                   <button
                     onClick={() => vote(proposal.id, true)}

@@ -19,9 +19,8 @@ export default function CreateProposal() {
       setMessage("❌ MetaMask not detected. Please install MetaMask.");
       return;
     }
-  
+
     try {
-<<<<<<< HEAD
       // Check if window.ethereum exists
       if (!window.ethereum) {
         setMessage("❌ Metamask not installed.");
@@ -33,15 +32,10 @@ export default function CreateProposal() {
         method: "eth_requestAccounts",
       });
 
-=======
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-  
->>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
       if (!accounts || accounts.length === 0) {
         setMessage("❌ No wallet address found. Please connect your wallet.");
         return;
       }
-<<<<<<< HEAD
 
       const userAccount = accounts[0]; // Get the first connected account
       setAccount(userAccount);
@@ -58,16 +52,6 @@ export default function CreateProposal() {
 
       const contract = await getContract(signer);
 
-=======
-  
-      const userAccount = accounts[0]; 
-      setAccount(userAccount);
-  
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = await getContract(signer); // ✅ Ensure signer is passed
-  
->>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
       if (!contract) {
         setMessage("❌ Failed to join DAO. No contract instance found.");
         return;
@@ -110,177 +94,54 @@ export default function CreateProposal() {
       );
     }
   };
-<<<<<<< HEAD
-=======
 
-  
-  // const joinDAO = async () => {
-  //   if (typeof window.ethereum === "undefined") {
-  //     setMessage("❌ MetaMask not detected. Please install MetaMask.");
-  //     return;
-  //   }
-  //   try {
-  //     // Request wallet connection if not already connected
-  //     const accounts = await window.ethereum.request({
-  //       method: "eth_requestAccounts",
-  //     });
-  
-  //     if (!accounts || accounts.length === 0) {
-  //       setMessage("❌ No wallet address found. Please connect your wallet.");
-  //       return;
-  //     }
-  
-  //     const userAccount = accounts[0]; // Get the first connected account
-  //     setAccount(userAccount);
-  
-  //     const provider = new ethers.BrowserProvider(window.ethereum);
-  //     const signer = await provider.getSigner();
-  //     const contract = await getContract(signer);
-  
-  //     if (!contract) {
-  //       setMessage("❌ Failed to join DAO. No contract instance found.");
-  //       return;
-  //     }
-  
-  //     const alreadyMember = await contract.isMember(userAccount);
-  //     if (alreadyMember) {
-  //       setIsMember(true);
-  //       setMessage("✅ You are already a member! You can create proposals.");
-  //       return;
-  //     }
-  
-  //     const reputation = 10;
-  //     const stakedTokens = ethers.parseUnits("1", 18);
-  //     const tx = await contract.joinDAO(reputation, stakedTokens);
-  //     await tx.wait();
-  
-  //     setIsMember(true);
-  //     setMessage("✅ Successfully joined the DAO! You can now create proposals.");
-  //   } catch (error) {
-  //     console.error("Error joining DAO:", error);
-  //     setMessage(`❌ Failed to join DAO. Error: ${error.reason || error.message}`);
-  //   }
-  // };
-  
->>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
-
-  // Submit Proposal Function
-  // const submitProposal = async () => {
-  //   if (!title || !description || !duration) {
-  //     alert("Please fill all fields.");
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setMessage("");
-
-  //   try {
-  //     const contract = await getContract();
-  //     const tx = await contract.createProposal(title, description, parseInt(duration));
-  //     await tx.wait();
-
-  //     setMessage("✅ Proposal created successfully!");
-  //     setTitle("");
-  //     setDescription("");
-  //     setDuration("");
-  //   } catch (error) {
-  //     console.error("Error creating proposal:", error);
-  //     setMessage("❌ Failed to create proposal.");
-  //   }
-
-  //   setLoading(false);
-  // };
-
-
-  const generateSummary = async (title, description) => {
-  try {
-    const response = await fetch("/api/generate-summary", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description }),
-    });
-
-    const data = await response.json();
-    return data.summary || "No summary available.";
-  } catch (error) {
-    console.error("Error generating summary:", error);
-    return "Failed to generate summary.";
-  }
-};
-
-const submitProposal = async () => {
-  if (!title || !description || !duration) {
+  const submitProposal = async () => {
+    if (!title || !description || !duration) {
       alert("Please fill all fields.");
       return;
-  }
+    }
 
-  setLoading(true);
-  setMessage("");
+    setLoading(true);
+    setMessage("");
 
-  try {
+    try {
       if (typeof window.ethereum === "undefined") {
-          setMessage("❌ MetaMask not detected. Please install MetaMask.");
-          setLoading(false);
-          return;
+        setMessage("❌ MetaMask not detected. Please install MetaMask.");
+        setLoading(false);
+        return;
       }
 
-      // Connect wallet
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = await getContract(signer); // ✅ Pass signer to getContract()
+      const contract = await getContract(signer);
 
       if (!contract) {
-          setMessage("❌ Contract instance not found.");
-          setLoading(false);
-          return;
+        setMessage("❌ Contract instance not found.");
+        setLoading(false);
+        return;
       }
 
-      const tx = await contract.createProposal(title, description, parseInt(duration, 10));
-      console.log("Submitting Proposal:", title, description, duration);
-
-<<<<<<< HEAD
-    try {
-      const contract = await getContract();
       const tx = await contract.createProposal(
         title,
         description,
-        Number.parseInt(duration)
+        parseInt(duration, 10)
       );
-=======
->>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
       await tx.wait();
 
-      // Add the new proposal to the list for demo purposes
-      // const newProposal = {
-      //   id: proposals.length + 1,
-      //   title,
-      //   description,
-      //   votesFor: 0,
-      //   votesAgainst: 0,
-      //   status: "Active",
-      //   timeLeft: `${duration} seconds`,
-      // }
-
-      // setProposals([newProposal, ...proposals])
       setMessage("✅ Proposal created successfully!");
-<<<<<<< HEAD
-      // setTitle("")
-      // setDescription("")
-      // setDuration("")
-    } catch (error) {
-=======
       setTitle("");
       setDescription("");
       setDuration("");
-  } catch (error) {
->>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
+      // fetchProposals(); // Refresh proposals after creating a new one
+    } catch (error) {
       console.error("Error creating proposal:", error);
-      setMessage(`❌ Failed to create proposal. ${error.reason || error.message}`);
-  }
-
-  setLoading(false);
-};
-
+      setMessage(
+        `❌ Failed to create proposal. ${error.reason || error.message}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // For demo purposes
   useEffect(() => {
@@ -305,7 +166,7 @@ const submitProposal = async () => {
 
   return (
     <div
-      className=" bg-black text-white font-sans"
+      className="bg-black text-white font-sans"
       style={{
         backgroundImage:
           "linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.7)), url('/placeholder.svg?height=1080&width=1920')",
@@ -313,7 +174,6 @@ const submitProposal = async () => {
         backgroundPosition: "center",
       }}
     >
-      {/* Header */}
       <header className="text-center py-6">
         <div className="relative mx-auto max-w-md h-40 mb-8 flex items-center justify-center">
           <div className="absolute w-64 h-64 rounded-full border-4 border-purple-500/30 animate-pulse"></div>
@@ -321,52 +181,19 @@ const submitProposal = async () => {
           <div className="absolute w-48 h-48 rounded-full border border-cyan-300/20"></div>
           <div
             className="z-10 text-2xl font-bold text-cyan-300"
-            style={{
-              textShadow: "0 0 10px rgba(56, 189, 248, 0.7)",
-            }}
+            style={{ textShadow: "0 0 10px rgba(56, 189, 248, 0.7)" }}
           >
             Hedera DAO
           </div>
         </div>
       </header>
 
-      {/* Main Banner */}
-      <div className="relative mx-auto max-w-5xl mb-12">
-        <div className="border border-cyan-500/50 bg-slate-900/60 backdrop-blur-sm rounded-lg p-4 shadow-lg shadow-cyan-500/20 overflow-hidden">
-          <div className="absolute inset-0 bg-grid-pattern opacity-20"></div>
-          <div className="relative z-10 text-center py-10">
-            <h2
-              className="text-5xl md:text-6xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400 mb-2"
-              style={{
-                textShadow: "0 0 15px rgba(56, 189, 248, 0.5)",
-                letterSpacing: "0.15em",
-              }}
-            >
-              DECENTRALIZATION
-            </h2>
-            <h2
-              className="text-5xl md:text-6xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-400"
-              style={{
-                textShadow: "0 0 15px rgba(56, 189, 248, 0.5)",
-                letterSpacing: "0.15em",
-              }}
-            >
-              GOVERNANCE
-            </h2>
-          </div>
-        </div>
-      </div>
-
-      {/* Circular Proposal Section */}
-
-      {/* Create Proposal Section */}
       <div className="max-w-2xl mx-auto mb-2">
         <div className="bg-slate-800/80 backdrop-blur-sm border border-slate-700 rounded-lg p-6 shadow-lg">
-          {/* Join DAO Button */}
-          <div className="mb-4 ">
+          <div className="mb-4">
             <button
               onClick={joinDAO}
-              className={`px-4 py-2 rounded-md  ${
+              className={`px-4 py-2 rounded-md ${
                 isMember
                   ? "bg-slate-700 text-slate-400 cursor-not-allowed"
                   : "bg-cyan-600 hover:bg-cyan-500 text-white transition-colors mx-auto"
@@ -394,7 +221,6 @@ const submitProposal = async () => {
             )}
           </div>
 
-          {/* Proposal Form */}
           {isMember && (
             <div>
               <h2 className="text-xl font-bold mb-4 text-cyan-300">
@@ -433,10 +259,6 @@ const submitProposal = async () => {
           )}
         </div>
       </div>
-
-      {/* Get Proposals Count Button */}
-
-      {/* DAO Proposals Section */}
     </div>
   );
 }

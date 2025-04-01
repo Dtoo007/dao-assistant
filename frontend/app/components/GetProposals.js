@@ -2,19 +2,35 @@
 
 import { useState } from "react";
 import { getContract } from "@/app/util/hederaDAO";
+import { ethers } from "ethers";
 
 export default function GetProposals() {
   const [count, setCount] = useState(null);
 
+  // const fetchProposalsCount = async () => {
+  //   const contract = await getContract(signer);
+  //   if (contract) {
+  //     try {
+  //       const count = await contract.getProposalsCount(); // Call the function
+  //       setCount(count.toString());
+  //     } catch (error) {
+  //       console.error("Error fetching proposals count:", error);
+  //     }
+  //   }
+  // };
+
   const fetchProposalsCount = async () => {
-    const contract = await getContract();
-    if (contract) {
-      try {
+    try {
+      const provider = new ethers.BrowserProvider(window.ethereum); // Initialize provider
+      const signer = await provider.getSigner(); // Get the signer
+      const contract = await getContract(signer); // Pass the signer to getContract
+  
+      if (contract) {
         const count = await contract.getProposalsCount(); // Call the function
         setCount(count.toString());
-      } catch (error) {
-        console.error("Error fetching proposals count:", error);
       }
+    } catch (error) {
+      console.error("Error fetching proposals count:", error);
     }
   };
 

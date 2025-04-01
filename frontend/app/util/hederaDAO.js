@@ -3,9 +3,9 @@
 import { ethers } from "ethers";
 
 export async function getContract(signer) {
-  const contractAddress = "0x2bd7aeb06ae76f4076e3a629519f00a988abc537";
+  const contractAddress = "0x3cede3f2d58017a6c76ebab3bb9db6b897400a0f";
   // Your contract ABI here
-  const contractABI = [
+  const CONTRACT_ABI = [
     {
       inputs: [
         {
@@ -16,11 +16,6 @@ export async function getContract(signer) {
         {
           internalType: "string",
           name: "_description",
-          type: "string",
-        },
-        {
-          internalType: "string",
-          name: "_summary",
           type: "string",
         },
         {
@@ -128,12 +123,6 @@ export async function getContract(signer) {
           indexed: false,
           internalType: "string",
           name: "description",
-          type: "string",
-        },
-        {
-          indexed: false,
-          internalType: "string",
-          name: "summary",
           type: "string",
         },
         {
@@ -293,11 +282,6 @@ export async function getContract(signer) {
               type: "string",
             },
             {
-              internalType: "string",
-              name: "summary",
-              type: "string",
-            },
-            {
               internalType: "uint256",
               name: "votesFor",
               type: "uint256",
@@ -341,11 +325,6 @@ export async function getContract(signer) {
       ],
       name: "getProposal",
       outputs: [
-        {
-          internalType: "string",
-          name: "",
-          type: "string",
-        },
         {
           internalType: "string",
           name: "",
@@ -499,11 +478,6 @@ export async function getContract(signer) {
           type: "string",
         },
         {
-          internalType: "string",
-          name: "summary",
-          type: "string",
-        },
-        {
           internalType: "uint256",
           name: "votesFor",
           type: "uint256",
@@ -533,10 +507,10 @@ export async function getContract(signer) {
       type: "function",
     },
   ];
-  
+
   if (!signer) {
     throw new Error("Signer is required to interact with the contract.");
   }
 
-  return new ethers.Contract(contractAddress, contractABI, signer);
+  return new ethers.Contract(contractAddress, CONTRACT_ABI, signer);
 }
