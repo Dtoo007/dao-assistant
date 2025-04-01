@@ -19,8 +19,11 @@ export default function GetProposals() {
   };
 
   return (
-    <div>
-      <button onClick={fetchProposalsCount} className="px-4 py-2 bg-green-500 text-white rounded">
+    <div className="flex justify-center mb-8">
+      <button
+        onClick={fetchProposalsCount}
+        className="px-6 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-md transition-colors shadow-lg shadow-cyan-500/20"
+      >
         Get Proposals Count
       </button>
       {count !== null && <p>Total Proposals: {count}</p>}
