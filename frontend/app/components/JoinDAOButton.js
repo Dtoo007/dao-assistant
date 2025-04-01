@@ -74,14 +74,14 @@ export default function CreateProposal() {
         placeholder="Title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-2 border rounded my-2"
+        className="w-full p-2 border rounded my-2 text-black"
         disabled={!isMember}
       />
       <textarea
         placeholder="Description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        className="w-full p-2 border rounded my-2"
+        className="w-full p-2 border rounded my-2 text-black"
         disabled={!isMember}
       />
       <input
@@ -89,10 +89,13 @@ export default function CreateProposal() {
         placeholder="Duration (in seconds)"
         value={duration}
         onChange={(e) => setDuration(e.target.value)}
-        className="w-full p-2 border rounded my-2"
+        className="w-full p-2 border rounded my-2 text-black"
         disabled={!isMember}
       />
+<<<<<<< HEAD
 
+=======
+>>>>>>> d0bf827776ac420ce0413e2a3bfe34f38f86bfd4
       {!isMember && (
         <p className="mt-2 text-red-500">Join the DAO to create proposals.</p>
       )}
