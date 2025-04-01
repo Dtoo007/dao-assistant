@@ -14,19 +14,23 @@ contract HederaDAO {
         string description;
         uint256 votesFor;
         uint256 votesAgainst;
-        uint256 deadline; // New: Voting deadline
+        uint256 votingDeadline;
         bool executed;
         address proposer;
     }
 
     mapping(address => Member) public members;
+    mapping(uint256 => mapping(address => bool)) public hasVoted;
     Proposal[] public proposals;
     address public owner;
 
     event MemberJoined(address indexed member, uint256 reputation, uint256 stakedTokens);
+    event MemberLeft(address indexed member);
     event ProposalCreated(uint256 indexed proposalId, string description, address proposer, uint256 deadline);
     event Voted(uint256 indexed proposalId, address voter, bool support, uint256 weight);
+    event VoteCast(uint256 indexed proposalId, address indexed voter, bool support);
     event ProposalExecuted(uint256 indexed proposalId);
+    event VoteCast(uint256 proposalId, address voter, bool support, uint256 votesFor, uint256 votesAgainst);
 
     modifier onlyMember() {
         require(members[msg.sender].isMember, "Not a DAO member");
@@ -37,13 +41,28 @@ contract HederaDAO {
         owner = msg.sender;
     }
 
+    function isMember(address user) public view returns (bool) {
+        return members[user].isMember;
+    }
+
     function joinDAO(uint256 _reputation, uint256 _stakedTokens) external {
         require(!members[msg.sender].isMember, "Already a member");
         members[msg.sender] = Member(true, _reputation, _stakedTokens);
         emit MemberJoined(msg.sender, _reputation, _stakedTokens);
     }
 
-    function createProposal(string memory _title, string memory _description, uint256 _votingDuration) external onlyMember {
+    function leaveDAO() external onlyMember {
+        members[msg.sender].isMember = false;
+        members[msg.sender].reputation = 0;
+        members[msg.sender].stakedTokens = 0;
+        emit MemberLeft(msg.sender);
+    }
+
+    function createProposal(
+        string memory _title, 
+        string memory _description, 
+        uint256 _votingDuration
+    ) external onlyMember {
         require(_votingDuration > 0, "Invalid voting duration");
 
         proposals.push(Proposal({
@@ -51,7 +70,7 @@ contract HederaDAO {
             description: _description,
             votesFor: 0,
             votesAgainst: 0,
-            deadline: block.timestamp + _votingDuration, // Set voting deadline
+            votingDeadline: block.timestamp + _votingDuration,
             executed: false,
             proposer: msg.sender
         }));
@@ -60,41 +79,61 @@ contract HederaDAO {
     }
 
     function getProposalsCount() public view returns (uint256) {
-    return proposals.length;
-}
+        return proposals.length;
+    }
 
+    function getProposal(uint256 _index) 
+        public 
+        view 
+        returns (
+            string memory, 
+            string memory, 
+            uint256, 
+            uint256, 
+            uint256, 
+            address
+        ) 
+    {
+        Proposal storage proposal = proposals[_index];
+        return (
+            proposal.title, 
+            proposal.description, 
+            proposal.votesFor, 
+            proposal.votesAgainst, 
+            proposal.votingDeadline, 
+            proposal.proposer
+        );
+    }
 
-    function vote(uint256 _proposalId, bool _support) external onlyMember {
-        require(_proposalId < proposals.length, "Invalid proposal ID");
-        Proposal storage proposal = proposals[_proposalId];
+    function getAllProposals() public view returns (Proposal[] memory) {
+        return proposals;
+    }
 
-        require(block.timestamp < proposal.deadline, "Voting period has ended"); // Enforce deadline
-        require(!proposal.executed, "Proposal already executed");
+    function vote(uint256 proposalId, bool support) public {
+        Proposal storage proposal = proposals[proposalId];
+        require(!hasVoted[proposalId][msg.sender], "You have already voted");
+        require(block.timestamp < proposal.votingDeadline, "Voting has ended");
 
-        uint256 votingPower = members[msg.sender].reputation + members[msg.sender].stakedTokens;
-        require(votingPower > 0, "No voting power");
+        hasVoted[proposalId][msg.sender] = true;
 
-        if (_support) {
-            proposal.votesFor += votingPower;
+        if (support) {
+            proposal.votesFor++;
         } else {
-            proposal.votesAgainst += votingPower;
+            proposal.votesAgainst++;
         }
 
-        emit Voted(_proposalId, msg.sender, _support, votingPower);
+        emit VoteCast(proposalId, msg.sender, support, proposal.votesFor, proposal.votesAgainst);
     }
 
     function executeProposal(uint256 _proposalId) external onlyMember {
         require(_proposalId < proposals.length, "Invalid proposal ID");
         Proposal storage proposal = proposals[_proposalId];
 
-        require(block.timestamp >= proposal.deadline, "Voting period not ended yet"); // Ensure voting period has ended
+        require(block.timestamp >= proposal.votingDeadline, "Voting period not ended yet");
         require(!proposal.executed, "Proposal already executed");
         require(proposal.votesFor > proposal.votesAgainst, "Proposal rejected");
 
         proposal.executed = true;
         emit ProposalExecuted(_proposalId);
     }
-
-
-
 }
